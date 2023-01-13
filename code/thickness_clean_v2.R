@@ -4,14 +4,20 @@ library(ggplot2)
 library(egg)
 library(cowplot)
 library(ggseg)
+#Library to set wd
+library(here)
+library(rstudioapi)
 
 #------------- INPUT NEEDED---------------------
 # Change the directory as needed
-CP<-' /Users/zugmana2/Documents/meta-gender/FOR_ZUGMAN/'
+script_path <- dirname( rstudioapi::getActiveDocumentContext()$path )
+setwd(script_path)
+setwd("..")
+rootdir <- getwd()
 #-----------------------------------------------
 
 # List of included studies
-COHT<-read.csv(paste0(CP,'TABLE_all_used_v2.csv'))
+COHT<-read.csv(paste0(rootdir,'/','tables','/','TABLE_all_used_v2.csv'))
 
 # ------------------------------------------------------------------------------
 ## The Gender inequality index combined
