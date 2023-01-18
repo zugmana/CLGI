@@ -92,7 +92,10 @@ bp<- ggplot(Tright1, aes(x=V1, y=V2, size = V3)) +
         legend.position="bottom",
         panel.background = element_rect(fill=NA,colour="grey")) +
   geom_segment(aes(x =-1.5, y = Pex_r1$pred[1], xend = 1, yend = Pex_r1$pred[2]),size=1,linetype="solid",colour="black") 
-print(bp)
+
+ggsave('fig1.pdf',plot=bp,path=paste0(rootdir,"/","figures","/"),dpi=800,width=14,height=7, units="in" )
+command = paste0("open ",rootdir,"/","figures","/","fig1.pdf") 
+system(command)
 
 #----------------------- ROI figures -------------------------------------------
 
