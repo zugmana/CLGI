@@ -21,7 +21,7 @@ if ( rstudioapi::isAvailable() ){
   setwd (rootdir)
 } else {
   script_path <- paste0(here(),"/","code","/")
-  rootdir <- dirname(script_path)
+  rootdir <- dirname(dirname(script_path))
   setwd (rootdir)
 }
 
