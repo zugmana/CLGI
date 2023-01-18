@@ -43,8 +43,12 @@ rm(z)
 
 # For regional
 Am_ROI=Am
+print("pval for Hemispheres:")
+print(Am_ROI[c(35,70),])
 Am_ROI=Am_ROI[-c(35,70),] # excluding the global measures for the FDR correction
 Am_fdr=p.adjust(Am_ROI[,2],"fdr")
+print("p<0.05: ")
+print (Am_fdr[Am_fdr < 0.05])
 
 # Controlling for GDP
 Amg=matrix(NA,numTH,2)
@@ -56,9 +60,11 @@ for (z in 1:numTH){
   rm(Mg,Ag)
 }
 rm(z)
-Am_ROIg=Amg
-Am_ROIg=Am_ROIg[-c(35,70),]
-Am_fdrg=p.adjust(Am_ROIg[,2],"fdr")
+Am_ROIg<-Amg
+Am_ROIg<-Am_ROIg[-c(35,70),]
+Am_fdrg<-p.adjust(Am_ROIg[,2],"fdr")
+print("p<0.05 controlling for GDP: ")
+print (Am_fdrg[Am_fdrg < 0.05])
 
 #----------------------------------- Figures -----------------------------------
 z=35
