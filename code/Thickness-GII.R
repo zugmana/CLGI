@@ -27,7 +27,7 @@ if ( rstudioapi::isAvailable() ){
 
 load(paste0(rootdir,"/","tables","/","dataformeta.Rdata"))
 #for the output
-dir.create(rootdir,"/","figures")
+dir.create(paste0(rootdir,"/","figures"))
 
 
 #----------- Meta-analysis ---------------------
