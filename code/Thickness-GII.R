@@ -59,7 +59,7 @@ for (z in 1:numTH){
 }
 rm(z)
 Am_ROIg<-Amg
-print("pval for Hemispheres:")
+print("pval for Hemispheres (GDP corrected):")
 print(Am_ROIg[c(35,70),])
 Am_ROIg<-Am_ROIg[-c(35,70),]
 Am_fdrg<-p.adjust(Am_ROIg[,2],"fdr")
