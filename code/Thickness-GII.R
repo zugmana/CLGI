@@ -33,11 +33,10 @@ dir.create(paste0(rootdir,"/","figures"))
 #----------- Meta-analysis ---------------------
 Am=matrix(NA,numTH,2)
 for (z in 1:numTH){
-  M<-escalc("MD",m1i=mTHm[,z],m2i=mTHf[,z],sd1i=sdTHm[,z],sd2i=sdTHf[,z],n1i=as.numeric(DEM$NMale),n2i=as.numeric(DEM$NFem),vtype="LS")
-  A<-rma.uni(yi=M$yi,vi=M$vi,mods=cbind(as.numeric(GI)),method = "PM")
+  A<-rma.uni(yi=Y[,z],vi=Vi[,z],mods=cbind(as.numeric(GI)),method = "PM")
   Am[z,1]=A$beta[2]
   Am[z,2]=A$pval[2]
-  rm(M,A)
+  rm(A)
 }
 rm(z)
 
@@ -48,19 +47,20 @@ print(Am_ROI[c(35,70),])
 Am_ROI=Am_ROI[-c(35,70),] # excluding the global measures for the FDR correction
 Am_fdr=p.adjust(Am_ROI[,2],"fdr")
 print("p<0.05: ")
-print (Am_fdr[Am_fdr < 0.05])
+print (Am_fdr[Am_fdr <= 0.05])
 
 # Controlling for GDP
 Amg=matrix(NA,numTH,2)
 for (z in 1:numTH){
-  Mg<-escalc("MD",m1i=mTHm[,z],m2i=mTHf[,z],sd1i=sdTHm[,z],sd2i=sdTHf[,z],n1i=as.numeric(DEM$NMale),n2i=as.numeric(DEM$NFem),vtype="LS")
-  Ag<-rma.uni(yi=Mg$yi,vi=Mg$vi,mods=cbind(as.numeric(GI),log(as.numeric(GDP))),method = "PM")
+  Ag<-rma.uni(yi=Y[,z],vi=Vi[,z],mods=cbind(as.numeric(GI),log(as.numeric(GDP))),method = "PM")
   Amg[z,1]=Ag$beta[2]
   Amg[z,2]=Ag$pval[2]
-  rm(Mg,Ag)
+  rm(Ag)
 }
 rm(z)
 Am_ROIg<-Amg
+print("pval for Hemispheres:")
+print(Am_ROIg[c(35,70),])
 Am_ROIg<-Am_ROIg[-c(35,70),]
 Am_fdrg<-p.adjust(Am_ROIg[,2],"fdr")
 print("p<0.05 controlling for GDP: ")
@@ -68,10 +68,10 @@ print (Am_fdrg[Am_fdrg < 0.05])
 
 #----------------------------------- Figures -----------------------------------
 z=35
-M1<-escalc("MD",m1i=mTHm[,z],m2i=mTHf[,z],sd1i=sdTHm[,z],sd2i=sdTHf[,z],n1i=as.numeric(DEM$NMale),n2i=as.numeric(DEM$NFem),vtype="LS")
-A1<-rma.uni(yi=M1$yi,vi=M1$vi,mods=as.numeric(GI),method = "PM")
 
-Tright1<-as.data.frame(cbind(as.numeric(GI),M1$yi,as.numeric(DEM$N)))
+A1<-rma.uni(yi=Y[,z],vi=Vi[,z],mods=as.numeric(GI),method = "PM")
+
+Tright1<-as.data.frame(cbind(as.numeric(GI),Y[,z],as.numeric(DEM$N)))
 Tright1$V3[which(as.numeric(DEM$N)>400)]<-400 # capping the N to 200 or 400? to improve visibility
 Pex_r1<-predict.rma(A1, newmods= rbind(cbind(-1.5,25),cbind(1,25)) )
 
@@ -80,8 +80,8 @@ bp<- ggplot(Tright1, aes(x=V1, y=V2, size = V3)) +
   geom_point(alpha=0.3) + scale_size_area(max_size=15, name="Number of participants",breaks=c(100,200,300,400)) +
   xlab("Gender Inequality (z-scores)") + ylab("Difference in cortical thickness (residuals)") + theme_light() + theme(legend.position="right") + 
   annotate("text",x=1, y=-0.08, label= "paste(italic(P), \"-value = 0.006\")", parse = TRUE,size=7,hjust=1) + 
-  annotate("text",x=1, y=-0.095, label= "paste(italic(I) ^ 2, \" = 24.38%\")", parse = TRUE,size=7,hjust=1) + 
-  annotate("text",x=1, y=-0.11, label= "paste(italic(R) ^ 2, \" = 3.97%\")", parse = TRUE,size=7,hjust=1) + 
+  annotate("text",x=1, y=-0.095, label= "paste(italic(I) ^ 2, \" = 21.87%\")", parse = TRUE,size=7,hjust=1) + 
+  annotate("text",x=1, y=-0.11, label= "paste(italic(R) ^ 2, \" = 4.34%\")", parse = TRUE,size=7,hjust=1) + 
   annotate("label",x=-1.3, y=-0.1, label= "FEMALE > MALE", parse = TRUE,size=7) + 
   annotate("label",x=-1.3, y=0.1, label= "FEMALE < MALE", parse = TRUE,size=7) + 
   ggtitle("A. Right Hemisphere Cortical Thickness") +
@@ -106,10 +106,10 @@ system(command)
 #----------------------- ROI figures -------------------------------------------
 
 z=2
-M2<-escalc("MD",m1i=mTHm[,z],m2i=mTHf[,z],sd1i=sdTHm[,z],sd2i=sdTHf[,z],n1i=as.numeric(DEM$NMale),n2i=as.numeric(DEM$NFem),vtype="LS")
-A2<-rma.uni(yi=M2$yi,vi=M2$vi,mods=as.numeric(GI),method = "PM")
 
-Tright2<-as.data.frame(cbind(as.numeric(GI),M2$yi,as.numeric(DEM$N)))
+A2<-rma.uni(yi=Y[,z],vi=Vi[,z],mods=as.numeric(GI),method = "PM")
+
+Tright2<-as.data.frame(cbind(as.numeric(GI),Y[,z],as.numeric(DEM$N)))
 Tright2$V3[which(as.numeric(DEM$N)>400)]<-400 # capping the N to 200 to improve visibility
 Pex_r2<-predict.rma(A2, newmods= rbind(cbind(-1.5,25),cbind(1,25)) )
 
@@ -117,9 +117,9 @@ bp_r1<- ggplot(Tright2, aes(x=V1, y=V2, size = V3)) +
   geom_hline(colour="black", yintercept=0,size=0.6,linetype="dotted") +  
   geom_point(alpha=0.3) + scale_size_area(max_size=10, name="Number of participants",breaks=c(100,200,300,400)) +
   xlab(" ") + ylab("Difference in cortical thickness") + theme_light() +  
-  annotate("text",x=0.3, y=-0.18, label= "paste(italic(P), \"-value (fdr) = 0.041\")", parse = TRUE,size=5) + 
-  annotate("text",x=0.2, y=-0.21, label= "paste(italic(I) ^ 2, \" = 16.89%, \")", parse = TRUE,size=5,hjust=1) + 
-  annotate("text",x=0.2, y=-0.21, label= "paste(italic(R) ^ 2, \" = 30.7%\")", parse = TRUE,size=5,hjust=0) + 
+  annotate("text",x=0.3, y=-0.18, label= "paste(italic(P), \"-value (fdr) = 0.04\")", parse = TRUE,size=5) + 
+  annotate("text",x=0.2, y=-0.21, label= "paste(italic(I) ^ 2, \" = 18.37%, \")", parse = TRUE,size=5,hjust=1) + 
+  annotate("text",x=0.2, y=-0.21, label= "paste(italic(R) ^ 2, \" = 29.73%\")", parse = TRUE,size=5,hjust=0) + 
   ylim(c(-0.21,0.22))+
   ggtitle("A. RIGHT CAUDAL\n    ANTERIOR CINGULATE") +
   theme(plot.title=element_text(size=15, 
@@ -135,14 +135,14 @@ bp_r1<- ggplot(Tright2, aes(x=V1, y=V2, size = V3)) +
         legend.position="none",
         panel.background = element_rect(fill=NA,colour="grey")) +
   geom_segment(aes(x =-1.5, y = Pex_r2$pred[1], xend = 1, yend = Pex_r2$pred[2]),size=0.5,linetype="solid",colour="black") 
-rm(M2,A2)
+rm(A2)
 
 # right medial orbitofrontal
 z=13
-M2<-escalc("MD",m1i=mTHm[,z],m2i=mTHf[,z],sd1i=sdTHm[,z],sd2i=sdTHf[,z],n1i=as.numeric(DEM$NMale),n2i=as.numeric(DEM$NFem),vtype="LS")
-A2<-rma.uni(yi=M2$yi,vi=M2$vi,mods=as.numeric(GI),method = "PM")
 
-Tright3<-as.data.frame(cbind(as.numeric(GI),M2$yi,as.numeric(DEM$N)))
+A2<-rma.uni(yi=Y[,z],vi=Vi[,z],mods=as.numeric(GI),method = "PM")
+
+Tright3<-as.data.frame(cbind(as.numeric(GI),Y[,z],as.numeric(DEM$N)))
 Tright3$V3[which(as.numeric(DEM$N)>400)]<-400 # capping the N to 200 to improve visibility
 Pex_r3<-predict.rma(A2, newmods= rbind(cbind(-1.5,25),cbind(1,25)) )
 
@@ -150,9 +150,9 @@ bp_r2<- ggplot(Tright3, aes(x=V1, y=V2, size = V3)) +
   geom_hline(colour="black", yintercept=0,size=0.6,linetype="dotted") +  
   geom_point(alpha=0.3) + scale_size_area(max_size=10, name="Number of participants",breaks=c(100,200,300,400)) +
   xlab("Gender Inequality (z-scores)") + ylab("Difference in cortical thickness") + theme_light() + 
-  annotate("text",x=0.3, y=-0.18, label= "paste(italic(P), \"-value (fdr) = 0.013\")", parse = TRUE,size=5) + 
-  annotate("text",x=0.3, y=-0.21, label= "paste(italic(I) ^ 2, \" = 20.92%, \")", parse = TRUE,size=5,hjust=1) + 
-  annotate("text",x=0.3, y=-0.21, label= "paste(italic(R) ^ 2, \" = 28.43%\")", parse = TRUE,size=5,hjust=0) + 
+  annotate("text",x=0.3, y=-0.18, label= "paste(italic(P), \"-value (fdr) = 0.012\")", parse = TRUE,size=5) + 
+  annotate("text",x=0.3, y=-0.21, label= "paste(italic(I) ^ 2, \" = 19.29%, \")", parse = TRUE,size=5,hjust=1) + 
+  annotate("text",x=0.3, y=-0.21, label= "paste(italic(R) ^ 2, \" = 36.29%\")", parse = TRUE,size=5,hjust=0) + 
   ylim(c(-0.21,0.22))+
   ggtitle("B. RIGHT MEDIAL\n    ORBITOFRONTAL") +
   theme(plot.title=element_text(size=15, 
@@ -168,14 +168,14 @@ bp_r2<- ggplot(Tright3, aes(x=V1, y=V2, size = V3)) +
         legend.position="none",
         panel.background = element_rect(fill=NA,colour="grey")) +
   geom_segment(aes(x =-1.5, y = Pex_r3$pred[1], xend = 1, yend = Pex_r3$pred[2]),size=0.5,linetype="solid",colour="black") +
-  rm(M2,A2)
+  rm(A2)
 
 # left lateral occipital
 z=45
-M2<-escalc("MD",m1i=mTHm[,z],m2i=mTHf[,z],sd1i=sdTHm[,z],sd2i=sdTHf[,z],n1i=as.numeric(DEM$NMale),n2i=as.numeric(DEM$NFem),vtype="LS")
-A2<-rma.uni(yi=M2$yi,vi=M2$vi,mods=as.numeric(GI),method = "PM")
 
-Tright4<-as.data.frame(cbind(as.numeric(GI),M2$yi,as.numeric(DEM$N)))
+A2<-rma.uni(yi=Y[,z],vi=Vi[,z],mods=as.numeric(GI),method = "PM")
+
+Tright4<-as.data.frame(cbind(as.numeric(GI),Y[,z],as.numeric(DEM$N)))
 Tright4$V3[which(as.numeric(DEM$N)>400)]<-400 # capping the N to 200 to improve visibility
 Pex_r4<-predict.rma(A2, newmods= rbind(cbind(-1.5,25),cbind(1,25)) )
 
@@ -183,9 +183,9 @@ bp_r3<- ggplot(Tright4, aes(x=V1, y=V2, size = V3)) +
   geom_hline(colour="black", yintercept=0,size=0.6,linetype="dotted") +  
   geom_point(alpha=0.3) + scale_size_area(max_size=10, name="Number of participants",breaks=c(100,200,300,400)) +
   xlab(" ") + ylab("Difference in cortical thickness") + theme_light() + 
-  annotate("text",x=0.3, y=-0.18, label= "paste(italic(P), \"-value (fdr) = 0.043\")", parse = TRUE,size=5) + 
-  annotate("text",x=0.3, y=-0.21, label= "paste(italic(I) ^ 2, \" = 18.07%, \")", parse = TRUE,size=5,hjust=1) + 
-  annotate("text",x=0.3, y=-0.21, label= "paste(italic(R) ^ 2, \" = 31.78%\")", parse = TRUE,size=5,hjust=0) + 
+  annotate("text",x=0.3, y=-0.18, label= "paste(italic(P), \"-value (fdr) = 0.0495\")", parse = TRUE,size=5) + 
+  annotate("text",x=0.3, y=-0.21, label= "paste(italic(I) ^ 2, \" = 15.96%, \")", parse = TRUE,size=5,hjust=1) + 
+  annotate("text",x=0.3, y=-0.21, label= "paste(italic(R) ^ 2, \" = 30.25%\")", parse = TRUE,size=5,hjust=0) + 
   ylim(c(-0.21,0.22))+
   ggtitle("C. LEFT LATERAL\n    OCCIPITAL") +
   theme(plot.title=element_text(size=15, 
@@ -201,7 +201,7 @@ bp_r3<- ggplot(Tright4, aes(x=V1, y=V2, size = V3)) +
         legend.position="none",
         panel.background = element_rect(fill=NA,colour="grey")) +
   geom_segment(aes(x =-1.5, y = Pex_r4$pred[1], xend = 1, yend = Pex_r4$pred[2]),size=0.5,linetype="solid",colour="black") 
-rm(M2,A2)
+rm(A2)
 
 someData = data.frame(region = c("caudal anterior cingulate","cuneus","fusiform","medial orbitofrontal","paracentral","posterior cingulate","isthmus cingulate","rostral anterior cingulate",
                                  "superior frontal","precuneus","parahippocampal","pericalcarine","temporal pole",
@@ -213,7 +213,6 @@ someData2 = data.frame(region = c("medial orbitofrontal","caudal anterior cingul
                                   "superior frontal","precuneus","parahippocampal","pericalcarine",
                                   "lingual","superior parietal","lateral orbitofrontal","temporal pole","isthmus cingulate",
                                   "corpus callosum","entorhinal"),p = c(1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2), stringsAsFactors = FALSE)
-#someData2 = data.frame(region = c("medial orbitofrontal"),  p = 10,  stringsAsFactors = FALSE)
 OF=ggseg(.data=someData2, atlas=dk, colour="black", size=0.3,mapping=aes(fill=p),hemisphere="right",view="medial")+theme_void()+theme(legend.position="none") +scale_fill_continuous(low="deepskyblue1", high="grey95")
 
 someData3 = data.frame(region = c("bankssts","caudal middle frontal", 

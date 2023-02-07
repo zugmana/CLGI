@@ -6,7 +6,7 @@
 #
 #Library to set wd
 library(rstudioapi)
-
+library(metafor)
 #------------- INPUT NEEDED---------------------
 # Change the directory as needed
 script_path <- dirname( rstudioapi::getActiveDocumentContext()$path )
@@ -16,7 +16,7 @@ rootdir <- getwd()
 #-----------------------------------------------
 
 # List of included studies
-COHT<-read.csv(paste0(rootdir,'/','tables','/','TABLE_all_used_v2.csv'))
+COHT<-read.csv(paste0(rootdir,'/','tables','/','TABLE_all_used_v3.csv'))
 
 # ------------------------------------------------------------------------------
 ## The Gender inequality index combined
@@ -213,9 +213,22 @@ if(length(toex)>0){
   mTHfur<-mTHfur[-c(toex),]
   sdTHfur<-sdTHfur[-c(toex),]
 }
+
 numTH <- (length(TH))
 
-save(list = c("mTHm", "sdTHm", "mTHf", "sdTHf", "DEM", "GI", "GDP",
-              "COHT", "mTHmur", "sdTHmur", "mTHfur", "sdTHfur", "numTH"),
+#Use escalc to get data that will be used in next script
+#This gets the effect size for the meta-regression on the next script.
+Y <- matrix(NA,length(DEM[,1]), numTH)
+Vi <- matrix(NA, length(DEM[,1]), numTH)
+for (z in 1:numTH){
+  M<-escalc("MD",m1i=mTHm[,z],m2i=mTHf[,z],sd1i=sdTHm[,z],sd2i=sdTHf[,z],n1i=as.numeric(DEM$NMale),n2i=as.numeric(DEM$NFem),vtype="LS")
+  Y[ ,z]<-as.numeric(M$yi)
+  Vi[ ,z]<-as.numeric(M$vi)
+  rm(M)
+  }
+
+
+save(list = c("Y","Vi", "DEM", "GI", "GDP",
+              "COHT","numTH"),
      file = paste0(rootdir,"/","tables","/","dataformeta.Rdata"))
 
